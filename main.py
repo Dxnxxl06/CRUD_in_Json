@@ -1,4 +1,3 @@
-from ast import Return
 import os
 import json
 
@@ -9,19 +8,32 @@ contacto=[]
 
 
 
+
 def crearContacto():
-    contacto = {
-        "Id": input("Ingrese Id: "),
-        "Nombre": input("Ingrese Nombre: "),
-        "Telefono": input("Ingrese Telefono: "),
-        "E-mail": input("Ingrese E-mail: ")
-    }
-    # Leer contactos existentes
+    fichero = "contacts.json"
+
+    nombre = input("Ingrese Nombre: ")
+    telefono = input("Ingrese Telefono: ")
+    email = input("Ingrese E-mail: ")
+
     try:
         with open(fichero, 'r', encoding='utf-8') as file:
             contactos = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         contactos = []
+
+    if contactos:
+        max_id = max(int(c.get('Id', 0)) for c in contactos if str(c.get('Id', '')).isdigit())
+        nuevo_id = str(max_id + 1)
+    else:
+        nuevo_id = "1"
+
+    contacto = {
+        "Id": nuevo_id,
+        "Nombre": nombre,
+        "Telefono": telefono,
+        "E-mail": email
+    }
 
     contactos.append(contacto)
 
@@ -46,11 +58,10 @@ def print_contactos():
 
     print("Contactos:")
     for contacto in contactos:
-        print(f"Id: {contacto['Id']}, Nombre: {contacto['Nombre']}, Telefono: {contacto['Telefono']}, E-mail: {contacto['E-mail']}")
-
+        print(f"Id: {contacto.get('Id','N/A')}, Nombre: {contacto.get('Nombre','N/A')}, Telefono: {contacto.get('Telefono','N/A')}, E-mail: {contacto.get('E-mail','N/A')}")
+    
 def actualizar_contacto():
     fichero = "contacts.json"
-
     try:
         with open(fichero, 'r', encoding='utf-8') as file:
             contactos = json.load(file)
@@ -93,6 +104,12 @@ def eliminar_contacto():
     else:
         print("Contacto no encontrado.")
 
+def reiniciar_contactos():
+    with open(fichero, 'w', encoding='utf-8') as file:
+        json.dump([], file, indent=2, ensure_ascii=False)
+    print("Archivo de contactos reiniciado.")
+
+
 menu = '''
 ▒█▀▄▀█ ▒█▀▀▀ ▒█▀▀▀█ ▀█▀ ▒█▄░▒█ ▒█▀▀█ ▒█▀▀▀ ▒█▀▀█ 
 ▒█▒█▒█ ▒█▀▀▀ ░▀▀▀▄▄ ▒█  ▒█▒█▒█ ▒█░▄▄ ▒█▀▀▀ ▒█▄▄▀ 
@@ -102,7 +119,8 @@ menu = '''
       2. MOSTRAR CONTACTOS
       3. ACTUALIZAR CONTACTOS
       4. ELIMINAR CONTACTOS
-      5. SALIR
+      5. REINICIAR CONTACTOS
+      6.SALIR
 '''
 
 while True:
@@ -131,6 +149,13 @@ while True:
         input("Continuar...")
 
     elif opcion == 5:
+        reiniciar_contactos()
+        print("Contactos reiniciados")
+
+    elif opcion == 6:
         input("Presione enter para salir...")
         print("Saliendo del programa...")
         break
+
+    else: 
+        print("Opcion no valida")
